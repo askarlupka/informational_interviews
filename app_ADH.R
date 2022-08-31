@@ -74,6 +74,9 @@ ui <- fluidPage(
                textInput('ic', 'IC'),
                textInput('division', 'Division'),
                textInput('title', 'Title'),
+               textInput('area_of_interest', 'Area of interest'),
+               textInput('link_onenote', 'OneNote Link'),
+               textInput('link_bio', 'Link to biography'),
                actionButton('submit', 'Submit')
                ),
                mainPanel(tableOutput('view'))
@@ -101,8 +104,9 @@ server <- function(input, output) {
 
     })
     
-    observeEvent(input$submit, {new_data <- data.frame("full_name" = input$name, "goal" = input$goal,"industry" = "", "Agency" = input$agency, 
-                                                       "ic" = input$ic, "division" = input$division, "title" = input$title, "area_of_interest" = "", "link_onenote" = "", "link_biography" = "")
+    observeEvent(input$submit, {new_data <- data.frame("full_name" = input$name, "goal" = input$goal,"industry" = "", "agency" = input$agency, 
+                                                       "ic" = input$ic, "division" = input$division, "title" = input$title,
+                                                       "area_of_interest" = input$area_of_interest, "link_onenote" = input$link_onenote, "link_biography" = input$link_bio)
     output$view <- renderTable({new_data})
     new_sheet <- rbind(informational_interview, new_data)
     write_xlsx(new_sheet, 'informational_interview_edited.xlsx')})
