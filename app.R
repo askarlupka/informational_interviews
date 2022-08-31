@@ -8,7 +8,7 @@
 ##
 #if(installed.packages(collapsibleTree))
 
-list.of.packages <- c("shiny", "tidyverse", "remotes", "readxl", "writexl")
+list.of.packages <- c("shiny", "tidyverse", "remotes", "readxl")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -22,7 +22,6 @@ library(collapsibleTree) #tree design
 #These libraries should be coming from CRAN
 library(shiny) #making applications
 library(tidyverse) #manipulating data
-library(writexl)
 
 
 #For now you'll have to save the interview information in an excel file and have it in the same folder as the app file.

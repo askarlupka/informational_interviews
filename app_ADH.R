@@ -8,7 +8,7 @@
 ##
 #if(installed.packages(collapsibleTree))
 
-list.of.packages <- c("shiny", "tidyverse", "remotes", "readxl", "writexl")
+list.of.packages <- c("shiny", "tidyverse", "remotes", "readxl")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
