@@ -22,12 +22,7 @@ library(collapsibleTree) #tree design
 #These libraries should be coming from CRAN
 library(shiny) #making applications
 library(tidyverse) #manipulating data
-<<<<<<< HEAD
 library(writexl) #saving data as excel sheet
-=======
-library(writexl)
-
->>>>>>> 40e8e0b38c1756d3b8d3b57465239bb6fa0b5361
 
 #For now you'll have to save the interview information in an excel file and have it in the same folder as the app file.
 #In the future, there should be a drop down option in the app to load a file from a location
