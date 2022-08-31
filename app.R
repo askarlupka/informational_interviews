@@ -22,7 +22,7 @@ library(collapsibleTree) #tree design
 #These libraries should be coming from CRAN
 library(shiny) #making applications
 library(tidyverse) #manipulating data
-
+library(writexl) #saving data as excel sheet
 
 #For now you'll have to save the interview information in an excel file and have it in the same folder as the app file.
 #In the future, there should be a drop down option in the app to load a file from a location
@@ -55,25 +55,44 @@ ui <- fluidPage(
     # Application title
     titlePanel("Informational Interview Tracker"),
 
-    # Sidebar with a slider input for number of bins 
-    ###This isn't functional yet. 
-    sidebarLayout(
-        sidebarPanel(
-           selectInput('fill', 'Color', c("None", "Agency", "IC", "Division", "Title", "Area_of_interest_1", "Area_of_interest_2"))
+    tabsetPanel(type = "tabs",
+      tabPanel('Tree',
+          sidebarPanel(
+           selectInput('fill', 'Color', c("None", "Agency", "IC", "Division", "Title", "Area_of_interest_1", "Area_of_interest_2")
+          )
         ),
 
         # Show a tree diagram with the selected root node
         mainPanel(
           collapsibleTreeOutput("plot", height = "500px")
-        )
+      )),
+      tabPanel("Input Values",
+               sidebarPanel(
+                 textInput('name', 'Full Name'),
+                 textInput('goal', 'Goal'),
+                 textInput('agency', 'Agency'),
+               textInput('ic', 'IC'),
+               textInput('division', 'Division'),
+               textInput('title', 'Title'),
+               actionButton('submit', 'Submit')
+               ),
+               mainPanel(tableOutput('view'))
+      )
+    
+      )
     )
-)
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
     output$plot <- renderCollapsibleTree({
-      
+    
+    observeEvent(input$submit, {new_data <- data.frame("full_name" = input$name, "goal" = input$goal,"industry" = "", "Agency" = input$agency, 
+                                                       "ic" = input$ic, "division" = input$division, "title" = input$title, "area_of_interest" = "", "link_onenote" = "", "link_biography" = "")
+    output$view <- renderTable({new_data})
+    new_sheet <- rbind(informational_interview, new_data)
+    write_xlsx(new_sheet, 'informational_interview_edited.xlsx')})
      
         # generate bins based on input$bins from ui.R
 
