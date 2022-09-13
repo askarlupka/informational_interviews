@@ -34,6 +34,9 @@ informational_interview <- readxl::read_excel("informational_interview.xlsx")
 #Rename it to manipulate it
 data <- informational_interview
 
+data$Color <- data$agency
+levels(data$Color) <- colorspace::rainbow_hcl(length(unique(data$agency)))
+
 #Create the data that should go into the tooltip
 data <- data %>%
   mutate(tooltip = paste0("Title: ",
@@ -48,6 +51,9 @@ data$pathString <- apply(data[,c(2:6,1)], 1, function(x) paste(na.omit(x), colla
 #Create the data tree
 data_as_tree <- data.tree::ToDataFrameTable(data, "pathString", "tooltip")
 dataN <- data.tree::FromDataFrameTable(data_as_tree)
+
+#Make it so that the parent nodes do not have a pop-up tooltip.
+dataN$Set(tooltip = " ", filterFun = isNotLeaf)
 
 
 ## User Interface ####
@@ -96,10 +102,10 @@ server <- function(input, output) {
     output$plot <- renderCollapsibleTree({
     
      collapsibleTree(dataN,
+                     attributes = "Title",
                      tooltip = TRUE,
                      tooltipHtml = 'tooltip',
-                     collapsed = FALSE,
-                     fill = "green") #,
+                     collapsed = FALSE) #,
                      #fillByLevel = FALSE)
     })
      
