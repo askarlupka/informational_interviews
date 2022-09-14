@@ -8,7 +8,7 @@
 #
 ## Packages #####
 
-list.of.packages <- c("shiny", "tidyverse", "remotes", "readxl", "writexl", "DT")
+list.of.packages <- c("shiny", "tidyverse", "remotes", "readxl", "writexl", "DT", "data.tree")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -53,8 +53,9 @@ data_as_tree <- data.tree::ToDataFrameTable(data, "pathString", "tooltip")
 dataN <- data.tree::FromDataFrameTable(data_as_tree)
 
 #Make it so that the parent nodes do not have a pop-up tooltip.
-dataN$Set(tooltip = " ", filterFun = isNotLeaf)
-
+dataN$Set(tooltip = " ", filterFun = data.tree::isNotLeaf)
+dataN$Set(color = "red")
+dataN$Set(color = "blue", filterFun = data.tree::isNotLeaf)
 
 ## User Interface ####
 
@@ -102,10 +103,11 @@ server <- function(input, output) {
     output$plot <- renderCollapsibleTree({
     
      collapsibleTree(dataN,
-                     attributes = "Title",
+                    # attribute = "Title",
                      tooltip = TRUE,
                      tooltipHtml = 'tooltip',
-                     collapsed = FALSE) #,
+                     collapsed = FALSE,
+                     fill = "color") #,
                      #fillByLevel = FALSE)
     })
      
