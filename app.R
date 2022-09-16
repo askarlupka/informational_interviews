@@ -57,6 +57,12 @@ dataN$Set(tooltip = " ", filterFun = data.tree::isNotLeaf)
 dataN$Set(color = "red")
 dataN$Set(color = "blue", filterFun = data.tree::isNotLeaf)
 
+myPruneFun <- function(x, cutoff = 0.9, maxCountries = 7) {
+  ifelse(x$"Government", TRUE, FALSE)
+  ifelse(x == "NCI", TRUE, FALSE)
+}
+treeClone <- Clone(dataN, pruneFun = myPruneFun)
+
 ## User Interface ####
 
 # Define UI for application that draws a histogram
