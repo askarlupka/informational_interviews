@@ -1,2 +1,6 @@
-# informational_interviews
-Information interview tracker for a hierarchical organization
+# Informational Interview Tracker
+As a Presidential Management Fellow (PMF) appointed to NIH/NCI, the NCI fellows are tasked with an NCI Special Project that contributes to the institute. My special project for the first year was an informational interview tracker. This tracker can be used not only by PMFs at NCI but by other PMFs and other fellows and new hires for tracking their networks. 
+
+As a PMF, we conduct many informational interviews with individuals across our IC, NIH, and different agencies. Many PMFs interview over 80 individuals during their fellowship period of two years. Current ways of keeping track of the interview subject include OneNote notebooks and excel spreadsheets. Although the information is present, visualizing the breadth of the individuals is difficult due to the hierarchical nature of federal government. This project produces a dendrogram of interviews conducted based on the agency, IC and division an individual is located in. 
+
+This application utilizes RShiny to allow the user to input, visualize, and interact with their information. 
