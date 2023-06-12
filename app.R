@@ -29,39 +29,13 @@ library(DT)
 
 #For now you'll have to save the interview information in an excel file and have it in the same folder as the app file.
 #In the future, there should be a drop down option in the app to load a file from a location
-informational_interview <- readxl::read_excel("informational_interview.xlsx")
 
-#Rename it to manipulate it
-data <- informational_interview
 
-data$Color <- data$agency
-levels(data$Color) <- colorspace::rainbow_hcl(length(unique(data$agency)))
-
-#Create the data that should go into the tooltip
-data <- data %>%
-  mutate(tooltip = paste0("Title: ",
-                          title,
-                          "<br>OneNote: <a href=\"",
-                          link_onenote,
-                          "\">a link</a>" ))
-
-#Create the pathString and hierarchy order for the tree building
-data$pathString <- apply(data[,c(2:6,1)], 1, function(x) paste(na.omit(x), collapse = "/"))
-
-#Create the data tree
-data_as_tree <- data.tree::ToDataFrameTable(data, "pathString", "tooltip")
-dataN <- data.tree::FromDataFrameTable(data_as_tree)
-
-#Make it so that the parent nodes do not have a pop-up tooltip.
-dataN$Set(tooltip = " ", filterFun = data.tree::isNotLeaf)
-dataN$Set(color = "red")
-dataN$Set(color = "blue", filterFun = data.tree::isNotLeaf)
-
-myPruneFun <- function(x, cutoff = 0.9, maxCountries = 7) {
-  ifelse(x$"Government", TRUE, FALSE)
-  ifelse(x == "NCI", TRUE, FALSE)
-}
-treeClone <- Clone(dataN, pruneFun = myPruneFun)
+#myPruneFun <- function(x, cutoff = 0.9, maxCountries = 7) {
+#  ifelse(x$"Government", TRUE, FALSE)
+#  ifelse(x == "NCI", TRUE, FALSE)
+#}
+#treeClone <- Clone(dataN, pruneFun = myPruneFun)
 
 ## User Interface ####
 
@@ -72,65 +46,111 @@ ui <- fluidPage(
     titlePanel("Informational Interview Tracker"),
 
     tabsetPanel(type = "tabs",
+                
+      # Tab: Add a dataset
+      tabPanel('Data',
+        
+        # Side
+        sidebarPanel(fileInput("upload", "Choose Template File")),
+      
+        # Main: Data table
+        mainPanel(tableOutput("contents"))),
       
       # Tab: Interactive tree graphic          
       tabPanel('Tree',
-               
+        
         # Side: Coloring       
-        sidebarPanel(
-           selectInput('fill', 'Color', c("None", "Agency", "IC", "Division", "Title", "Area_of_interest_1", "Area_of_interest_2"))),
+#    #    sidebarPanel(
+#     #      selectInput('fill', 'Color', c("None", "Agency", "IC", "Division", "Title", "Area_of_interest_1", "Area_of_interest_2"))),
         
         # Main: Tree
         mainPanel(
           collapsibleTreeOutput("plot", height = "500px"))),
       
       # Tab: New observation addition
-      tabPanel("Addition of New Person",
+#      tabPanel("Addition of New Person",
                
          # Side: Form
-         sidebarPanel(
-           textInput('name', 'Full Name'),
-           textInput('goal', 'Field'),
-           textInput('agency', 'Agency'),
-           textInput('ic', 'IC'),
-           textInput('division', 'Division'),
-           textInput('title', 'Title'),
-           actionButton('submit', 'Submit')),
-               
-         # Main: Datatable
-         mainPanel(DT::dataTableOutput("mydata")))
-      ))
+#         sidebarPanel(
+#           textInput('name', 'Full Name'),
+# #          textInput('goal', 'Field'),
+#           textInput('agency', 'Agency'),
+#           textInput('ic', 'IC'),
+#           textInput('division', 'Division'),
+#           textInput('title', 'Title'),
+#           actionButton('submit', 'Submit'))
+ 
+#      )
+))
     
 ## Server Logic ####
 
 server <- function(input, output) {
+    
+    #Tab1: Data input  
   
-    # Tab1: Tree
+  data.manipulation <- function(data) {
+    
+    data$Color <- data$agency
+    levels(data$Color) <- colorspace::rainbow_hcl(length(unique(data$agency)))
+    
+    #Create the data that should go into the tooltip
+    data <- data %>%
+      mutate(tooltip = paste0("Title: ",
+                              title,
+                              "<br>OneNote: <a href=\"",
+                              link_onenote,
+                              "\">a link</a>" ))
+    
+    #Create the pathString and hierarchy order for the tree building
+    data$pathString <- apply(data[,c(2:6,1)], 1, function(x) paste(na.omit(x), collapse = "/"))
+    
+    #Create the data tree
+    data_as_tree <- data.tree::ToDataFrameTable(data, "pathString", "tooltip")
+    dataN <- data.tree::FromDataFrameTable(data_as_tree)
+    
+    #Make it so that the parent nodes do not have a pop-up tooltip.
+    dataN$Set(tooltip = " ", filterFun = data.tree::isNotLeaf)
+    dataN$Set(color = "red")
+    dataN$Set(color = "blue", filterFun = data.tree::isNotLeaf)
+    
+    return(dataN)
+  }
+          
+    output$contents <- renderTable(  {
+      file <- input$upload
+      readxl::read_xlsx(file$datapath)
+      })
+
+    #Tab2: Tree
     output$plot <- renderCollapsibleTree({
     
-     collapsibleTree(dataN,
-                    # attribute = "Title",
+      dataN <- data.manipulation(readxl::read_xlsx(input$upload$datapath))
+      
+      collapsibleTree(dataN,
+                  # attribute = "Title",
                      tooltip = TRUE,
                      tooltipHtml = 'tooltip',
                      collapsed = FALSE,
                      fill = "color") #,
                      #fillByLevel = FALSE)
     })
+}
      
     # Tab2: Data table
     
    # observeEvent(input$submit, {data <- data.frame("full_name" = input$name, "goal" = input$goal,"industry" = "", "Agency" = input$agency, 
    #                                                    "ic" = input$ic, "division" = input$division, "title" = input$title, "area_of_interest" = "", "link_onenote" = "", "link_biography" = "")
-    output$mydata <- DT::renderDataTable({
-      DT::datatable(data)
-    })
+ #   output$contents <- DT::renderDataTable({
+#      DT::datatable(df)
+#    })
    #new_sheet <- rbind(informational_interview, data)
    # writexl::write_xlsx(new_sheet, 'informational_interview_edited.xlsx')})
     
     # generate bins based on input$bins from ui.R
     
     
-}
+#}
 
 ## Run the application ####
 shinyApp(ui = ui, server = server)
